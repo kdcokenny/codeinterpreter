@@ -6,7 +6,7 @@ from os import getenv
 from typing import Optional
 from uuid import UUID, uuid4
 
-from openbox import CodeBox  # type: ignore
+from openbox import JupyterBox  # type: ignore
 from openbox.schema import CodeBoxOutput  # type: ignore
 from langchain.agents import (
     AgentExecutor,
@@ -62,7 +62,7 @@ class CodeInterpreterSession:
         additional_tools: list[BaseTool] = [],
         **kwargs,
     ) -> None:
-        self.codebox = CodeBox()
+        self.codebox = JupyterBox()
         self.verbose = kwargs.get("verbose", settings.VERBOSE)
         self.tools: list[BaseTool] = self._tools(additional_tools)
         self.llm: BaseLanguageModel = llm or self._choose_llm(**kwargs)
@@ -76,7 +76,7 @@ class CodeInterpreterSession:
     @classmethod
     def from_id(cls, session_id: UUID, **kwargs) -> "CodeInterpreterSession":
         session = cls(**kwargs)
-        session.codebox = CodeBox.from_id(session_id)
+        session.codebox = JupyterBox.from_id(session_id)
         session.agent_executor = session._agent_executor()
         return session
 
