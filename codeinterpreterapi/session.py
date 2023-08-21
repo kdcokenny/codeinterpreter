@@ -6,8 +6,8 @@ from os import getenv
 from typing import Optional
 from uuid import UUID, uuid4
 
-from codeboxapi import CodeBox  # type: ignore
-from codeboxapi.schema import CodeBoxOutput  # type: ignore
+from openbox import CodeBox  # type: ignore
+from openbox.schema import CodeBoxOutput  # type: ignore
 from langchain.agents import (
     AgentExecutor,
     BaseSingleActionAgent,
