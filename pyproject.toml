@@ -29,7 +29,6 @@ optional = true
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7"
-mypy = "^1.4"
 black = "^23"
 flake8 = "^6"
 pre-commit = "^3.3"
