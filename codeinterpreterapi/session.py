@@ -6,8 +6,6 @@ from os import getenv
 from typing import Optional
 from uuid import UUID, uuid4
 
-from openbox import JupyterBox  # type: ignore
-from openbox.schema import CodeBoxOutput  # type: ignore
 from langchain.agents import (
     AgentExecutor,
     BaseSingleActionAgent,
@@ -23,12 +21,11 @@ from langchain.memory.chat_message_histories import (
     RedisChatMessageHistory,
 )
 from langchain.prompts.chat import MessagesPlaceholder
-from langchain.schema import (
-    BaseChatMessageHistory,
-    BaseLanguageModel,
-    SystemMessage,
-)
+from langchain.schema import BaseChatMessageHistory, SystemMessage
+from langchain.schema.language_model import BaseLanguageModel
 from langchain.tools import BaseTool, StructuredTool
+from openbox import JupyterBox  # type: ignore
+from openbox.schema import CodeBoxOutput  # type: ignore
 
 from codeinterpreterapi.agents import OpenAIFunctionsAgent
 from codeinterpreterapi.chains import (
