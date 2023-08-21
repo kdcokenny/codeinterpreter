@@ -5,7 +5,9 @@ from codeinterpreterapi import CodeInterpreterSession, File
 
 def test_codebox():
     session = CodeInterpreterSession()
-    assert run_sync(session), "Failed to run sync CodeInterpreterSession remotely"
+    assert run_sync(
+        session
+    ), "Failed to run sync CodeInterpreterSession remotely"
     assert asyncio.run(
         run_async(session)
     ), "Failed to run async CodeInterpreterSession remotely"
@@ -13,7 +15,9 @@ def test_codebox():
 
 def test_localbox():
     session = CodeInterpreterSession(local=True)
-    assert run_sync(session), "Failed to run sync CodeInterpreterSession locally"
+    assert run_sync(
+        session
+    ), "Failed to run sync CodeInterpreterSession locally"
     assert asyncio.run(
         run_async(session)
     ), "Failed to run async CodeInterpreterSession locally"
@@ -26,7 +30,8 @@ def run_sync(session: CodeInterpreterSession) -> bool:
         assert (
             "3.1"
             in session.generate_response_sync(
-                "Compute pi using Monte Carlo simulation in Python and show me the result."
+                "Compute pi using Monte Carlo simulation "
+                "in Python and show me the result."
             ).content
         )
 
@@ -54,7 +59,7 @@ async def run_async(session: CodeInterpreterSession) -> bool:
             "3.1"
             in (
                 await session.agenerate_response(
-                    "Compute pi using Monte Carlo simulation in Python and show me the result."
+                    "Compute pi using Monte Carlo simulation in Python and show me the result."  # noqa: E501
                 )
             ).content
         )

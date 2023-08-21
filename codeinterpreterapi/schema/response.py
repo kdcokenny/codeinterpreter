@@ -14,11 +14,10 @@ class UserRequest(HumanMessage):
 
 
 class CodeInterpreterResponse(AIMessage):
-    """
-    Response from the code interpreter agent.
+    """Response from the code interpreter agent.
 
-    files: list of files to be sent to the user (File )
-    code_log: list[tuple[str, str]] = []
+    files: list of files to be sent to the user (File ) code_log:
+    list[tuple[str, str]] = []
     """
 
     files: list[File] = []
@@ -33,4 +32,4 @@ class CodeInterpreterResponse(AIMessage):
         return self.content
 
     def __repr__(self):
-        return f"CodeInterpreterResponse(content={self.content}, files={self.files})"
+        return f"CodeInterpreterResponse(content={self.content}, files={self.files})"  # noqa: E501

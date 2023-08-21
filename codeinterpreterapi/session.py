@@ -23,7 +23,11 @@ from langchain.memory.chat_message_histories import (
     RedisChatMessageHistory,
 )
 from langchain.prompts.chat import MessagesPlaceholder
-from langchain.schema import BaseChatMessageHistory, BaseLanguageModel, SystemMessage
+from langchain.schema import (
+    BaseChatMessageHistory,
+    BaseLanguageModel,
+    SystemMessage,
+)
 from langchain.tools import BaseTool, StructuredTool
 
 from codeinterpreterapi.agents import OpenAIFunctionsAgent
@@ -35,7 +39,10 @@ from codeinterpreterapi.chains import (
 )
 from codeinterpreterapi.chat_history import CodeBoxChatMessageHistory
 from codeinterpreterapi.config import settings
-from codeinterpreterapi.parser import CodeAgentOutputParser, CodeChatAgentOutputParser
+from codeinterpreterapi.parser import (
+    CodeAgentOutputParser,
+    CodeChatAgentOutputParser,
+)
 from codeinterpreterapi.prompts import code_interpreter_system_message
 from codeinterpreterapi.schema import (
     CodeInput,
@@ -93,7 +100,7 @@ class CodeInterpreterSession:
                 name="python",
                 description="Input a string of code to a ipython interpreter. "
                 "Write the entire code in a single string. This string can "
-                "be really long, so you can use the `;` character to split lines. "
+                "be really long, so you can use the `;` character to split lines. "  # noqa: E501
                 "Variables are preserved between runs. ",
                 func=self._run_handler,
                 coroutine=self._arun_handler,
@@ -102,7 +109,10 @@ class CodeInterpreterSession:
         ]
 
     def _choose_llm(
-        self, model: str = "gpt-4", openai_api_key: Optional[str] = None, **kwargs
+        self,
+        model: str = "gpt-4",
+        openai_api_key: Optional[str] = None,
+        **kwargs,
     ) -> BaseChatModel:
         if "gpt" in model:
             openai_api_key = (
@@ -145,7 +155,9 @@ class CodeInterpreterSession:
         elif "claude" in model:
             return ChatAnthropic(model=model)
         else:
-            raise ValueError(f"Unknown model: {model} (expected gpt or claude model)")
+            raise ValueError(
+                f"Unknown model: {model} (expected gpt or claude model)"
+            )
 
     def _choose_agent(self) -> BaseSingleActionAgent:
         return (
@@ -213,7 +225,7 @@ class CodeInterpreterSession:
             print(code)
 
     def _run_handler(self, code: str):
-        """Run code in container and send the output to the user"""
+        """Run code in container and send the output to the user."""
         self.show_code(code)
         output: CodeBoxOutput = self.codebox.run(code)
         self.code_log.append((code, output.content))
@@ -225,13 +237,16 @@ class CodeInterpreterSession:
             filename = f"image-{uuid4()}.png"
             file_buffer = BytesIO(base64.b64decode(output.content))
             file_buffer.name = filename
-            self.output_files.append(File(name=filename, content=file_buffer.read()))
+            self.output_files.append(
+                File(name=filename, content=file_buffer.read())
+            )
             return f"Image {filename} got send to the user."
 
         elif output.type == "error":
             if "ModuleNotFoundError" in output.content:
                 if package := re.search(
-                    r"ModuleNotFoundError: No module named '(.*)'", output.content
+                    r"ModuleNotFoundError: No module named '(.*)'",
+                    output.content,
                 ):
                     self.codebox.install(package.group(1))
                     return (
@@ -260,7 +275,7 @@ class CodeInterpreterSession:
         return output.content
 
     async def _arun_handler(self, code: str):
-        """Run code in container and send the output to the user"""
+        """Run code in container and send the output to the user."""
         await self.ashow_code(code)
         output: CodeBoxOutput = await self.codebox.arun(code)
         self.code_log.append((code, output.content))
@@ -272,13 +287,16 @@ class CodeInterpreterSession:
             filename = f"image-{uuid4()}.png"
             file_buffer = BytesIO(base64.b64decode(output.content))
             file_buffer.name = filename
-            self.output_files.append(File(name=filename, content=file_buffer.read()))
+            self.output_files.append(
+                File(name=filename, content=file_buffer.read())
+            )
             return f"Image {filename} got send to the user."
 
         elif output.type == "error":
             if "ModuleNotFoundError" in output.content:
                 if package := re.search(
-                    r"ModuleNotFoundError: No module named '(.*)'", output.content
+                    r"ModuleNotFoundError: No module named '(.*)'",
+                    output.content,
                 ):
                     await self.codebox.ainstall(package.group(1))
                     return (
@@ -311,9 +329,7 @@ class CodeInterpreterSession:
         if not request.files:
             return
         if not request.content:
-            request.content = (
-                "I uploaded, just text me back and confirm that you got the file(s)."
-            )
+            request.content = "I uploaded, just text me back and confirm that you got the file(s)."  # noqa: E501
         request.content += "\n**The user uploaded the following files: **\n"
         for file in request.files:
             self.input_files.append(file)
@@ -327,9 +343,7 @@ class CodeInterpreterSession:
         if not request.files:
             return
         if not request.content:
-            request.content = (
-                "I uploaded, just text me back and confirm that you got the file(s)."
-            )
+            request.content = "I uploaded, just text me back and confirm that you got the file(s)."  # noqa: E501
         request.content += "\n**The user uploaded the following files: **\n"
         for file in request.files:
             self.input_files.append(file)
@@ -338,11 +352,13 @@ class CodeInterpreterSession:
         request.content += "**File(s) are now available in the cwd. **\n"
 
     def _output_handler(self, final_response: str) -> CodeInterpreterResponse:
-        """Embed images in the response"""
+        """Embed images in the response."""
         for file in self.output_files:
             if str(file.name) in final_response:
                 # rm ![Any](file.name) from the response
-                final_response = re.sub(r"\n\n!\[.*\]\(.*\)", "", final_response)
+                final_response = re.sub(
+                    r"\n\n!\[.*\]\(.*\)", "", final_response
+                )
 
         if self.output_files and re.search(r"\n\[.*\]\(.*\)", final_response):
             try:
@@ -360,16 +376,22 @@ class CodeInterpreterSession:
             content=final_response, files=output_files, code_log=code_log
         )
 
-    async def _aoutput_handler(self, final_response: str) -> CodeInterpreterResponse:
-        """Embed images in the response"""
+    async def _aoutput_handler(
+        self, final_response: str
+    ) -> CodeInterpreterResponse:
+        """Embed images in the response."""
         for file in self.output_files:
             if str(file.name) in final_response:
                 # rm ![Any](file.name) from the response
-                final_response = re.sub(r"\n\n!\[.*\]\(.*\)", "", final_response)
+                final_response = re.sub(
+                    r"\n\n!\[.*\]\(.*\)", "", final_response
+                )
 
         if self.output_files and re.search(r"\n\[.*\]\(.*\)", final_response):
             try:
-                final_response = await aremove_download_link(final_response, self.llm)
+                final_response = await aremove_download_link(
+                    final_response, self.llm
+                )
             except Exception as e:
                 if self.verbose:
                     print("Error while removing download links:", e)
@@ -406,8 +428,10 @@ class CodeInterpreterSession:
                 )
             else:
                 return CodeInterpreterResponse(
-                    content="Sorry, something went while generating your response."
-                    "Please try again or restart the session."
+                    content=(
+                        "Sorry, something went while generating your response."
+                        "Please try again or restart the session."
+                    )
                 )
 
     async def generate_response(
@@ -417,7 +441,7 @@ class CodeInterpreterSession:
         detailed_error: bool = False,
     ) -> CodeInterpreterResponse:
         print(
-            "DEPRECATION WARNING: Use agenerate_response for async generation.\n"
+            "DEPRECATION WARNING: Use agenerate_response for async generation.\n"  # noqa: E501
             "This function will be converted to sync in the future.\n"
             "You can use generate_response_sync for now.",
         )
@@ -438,7 +462,9 @@ class CodeInterpreterSession:
         try:
             await self._ainput_handler(user_request)
             assert self.agent_executor, "Session not initialized."
-            response = await self.agent_executor.arun(input=user_request.content)
+            response = await self.agent_executor.arun(
+                input=user_request.content
+            )
             return await self._aoutput_handler(response)
         except Exception as e:
             if self.verbose:
@@ -450,7 +476,7 @@ class CodeInterpreterSession:
                 )
             else:
                 return CodeInterpreterResponse(
-                    content="Sorry, something went while generating your response."
+                    content="Sorry, something went while generating your response."  # noqa: E501
                     "Please try again or restart the session."
                 )
 

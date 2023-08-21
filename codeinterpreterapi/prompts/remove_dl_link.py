@@ -1,4 +1,7 @@
-from langchain.prompts.chat import ChatPromptTemplate, HumanMessagePromptTemplate
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+)
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
 
 remove_dl_link_prompt = ChatPromptTemplate(
@@ -13,10 +16,12 @@ remove_dl_link_prompt = ChatPromptTemplate(
             "return the response as is.\n"
         ),
         HumanMessage(
-            content="The dataset has been successfully converted to CSV format. "
+            content="The dataset has been successfully converted to CSV format. "  # noqa: E501
             "You can download the converted file [here](sandbox:/Iris.csv)."
         ),  # noqa: E501
-        AIMessage(content="The dataset has been successfully converted to CSV format."),
+        AIMessage(
+            content="The dataset has been successfully converted to CSV format."  # noqa: E501
+        ),
         HumanMessagePromptTemplate.from_template("{input_response}"),
     ],
 )

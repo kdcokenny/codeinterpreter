@@ -9,9 +9,7 @@ from codeinterpreterapi import CodeInterpreterSession
 
 
 def create_temp_folder() -> str:
-    """
-    Creates a temp folder
-    """
+    """Creates a temp folder."""
     temp_folder = tempfile.mkdtemp()
     return temp_folder
 
@@ -30,7 +28,11 @@ async def get_images(prompt: str, files: Optional[list] = None):
 
                 # Showing Results
                 for _file in response.files:
-                    st.image(_file.get_image(), caption=prompt, use_column_width=True)
+                    st.image(
+                        _file.get_image(),
+                        caption=prompt,
+                        use_column_width=True,
+                    )
 
                 # Allowing the download of the results
                 if len(response.files) == 1:
@@ -45,7 +47,9 @@ async def get_images(prompt: str, files: Optional[list] = None):
                     for _file in response.files:
                         _file.save(os.path.join(target_path, _file.name))
 
-                    zip_path = os.path.join(os.path.dirname(target_path), "archive")
+                    zip_path = os.path.join(
+                        os.path.dirname(target_path), "archive"
+                    )
                     shutil.make_archive(zip_path, "zip", target_path)
 
                     with open(zip_path + ".zip", "rb") as f:

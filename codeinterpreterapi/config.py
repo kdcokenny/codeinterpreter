@@ -8,9 +8,7 @@ load_dotenv(dotenv_path="./.env")
 
 
 class CodeInterpreterAPISettings(BaseSettings):
-    """
-    CodeInterpreter API Config
-    """
+    """CodeInterpreter API Config."""
 
     VERBOSE: bool = False
 
@@ -19,7 +17,9 @@ class CodeInterpreterAPISettings(BaseSettings):
 
     HISTORY_BACKEND: Optional[str] = None
     REDIS_URL: str = "redis://localhost:6379"
-    POSTGRES_URL: str = "postgresql://postgres:postgres@localhost:5432/postgres"
+    POSTGRES_URL: str = (
+        "postgresql://postgres:postgres@localhost:5432/postgres"
+    )
 
 
 settings = CodeInterpreterAPISettings()

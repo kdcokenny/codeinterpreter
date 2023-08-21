@@ -42,13 +42,12 @@ def _convert_agent_action_to_messages(
 ) -> List[BaseMessage]:
     """Convert an agent action to a message.
 
-    This code is used to reconstruct the original AI message from the agent action.
+    This code is used to reconstruct the     original AI message from the agent
+    action.
 
-    Args:
-        agent_action: Agent action to convert.
+    Args:     agent_action: Agent action to convert.
 
-    Returns:
-        AIMessage that corresponds to the original tool invocation.
+    Returns:     AIMessage that corresponds to the original tool invocation.
     """
     if isinstance(agent_action, _FunctionsAgentAction):
         return agent_action.message_log + [
@@ -62,11 +61,10 @@ def _create_function_message(
     agent_action: AgentAction, observation: str
 ) -> FunctionMessage:
     """Convert agent action and observation into a function message.
-    Args:
-        agent_action: the tool invocation request from the agent
-        observation: the result of the tool invocation
-    Returns:
-        FunctionMessage that corresponds to the original tool invocation
+
+    Args:     agent_action: the tool invocation request from the agent
+    observation: the result of the tool invocation Returns:     FunctionMessage
+    that corresponds to the original tool invocation
     """
     if not isinstance(observation, str):
         try:
@@ -85,16 +83,18 @@ def _format_intermediate_steps(
     intermediate_steps: List[Tuple[AgentAction, str]],
 ) -> List[BaseMessage]:
     """Format intermediate steps.
-    Args:
-        intermediate_steps: Steps the LLM has taken to date, along with observations
-    Returns:
-        list of messages to send to the LLM for the next prediction
+
+    Args:     intermediate_steps: Steps the LLM has taken to date,     along
+    with observations Returns:     list of messages to send to the LLM for the
+    next prediction
     """
     messages = []
 
     for intermediate_step in intermediate_steps:
         agent_action, observation = intermediate_step
-        messages.extend(_convert_agent_action_to_messages(agent_action, observation))
+        messages.extend(
+            _convert_agent_action_to_messages(agent_action, observation)
+        )
 
     return messages
 
@@ -138,23 +138,26 @@ def _parse_ai_message(message: BaseMessage) -> Union[AgentAction, AgentFinish]:
         return _FunctionsAgentAction(
             tool=function_name,
             tool_input=tool_input,
-            log=f"\nInvoking: `{function_name}` with `{tool_input}`\n{content_msg}\n",
+            log=(
+                f"\nInvoking: `{function_name}` "
+                f"with `{tool_input}`\n{content_msg}\n"
+            ),
             message_log=[message],
         )
 
-    return AgentFinish(return_values={"output": message.content}, log=message.content)
+    return AgentFinish(
+        return_values={"output": message.content}, log=message.content
+    )
 
 
 class OpenAIFunctionsAgent(BaseSingleActionAgent):
     """An Agent driven by OpenAIs function powered API.
 
-    Args:
-        llm: This should be an instance of ChatOpenAI, specifically a model
-            that supports using `functions`.
-        tools: The tools this agent has access to.
-        prompt: The prompt for this agent, should support agent_scratchpad as one
-            of the variables. For an easy way to construct this prompt, use
-            `OpenAIFunctionsAgent.create_prompt(...)`
+    Args:     llm: This should be an instance of ChatOpenAI, specifically a
+    model         that supports using `functions`.     tools: The tools this
+    agent has access to.     prompt: The prompt for this agent, should support
+    agent_scratchpad as one         of the variables. For an easy way to
+    construct this prompt, use `OpenAIFunctionsAgent.create_prompt(...)`
     """
 
     llm: BaseLanguageModel
@@ -176,14 +179,17 @@ class OpenAIFunctionsAgent(BaseSingleActionAgent):
         prompt: BasePromptTemplate = values["prompt"]
         if "agent_scratchpad" not in prompt.input_variables:
             raise ValueError(
-                "`agent_scratchpad` should be one of the variables in the prompt, "
-                f"got {prompt.input_variables}"
+                "`agent_scratchpad` should be one of the variables "
+                f"in the prompt, got {prompt.input_variables}"
             )
         return values
 
     @property
     def input_keys(self) -> List[str]:
-        """Get input keys. Input refers to user input here."""
+        """Get input keys.
+
+        Input refers to user input here.
+        """
         return ["input"]
 
     @property
@@ -199,18 +205,20 @@ class OpenAIFunctionsAgent(BaseSingleActionAgent):
     ) -> Union[AgentAction, AgentFinish]:
         """Given input, decided what to do.
 
-        Args:
-            intermediate_steps: Steps the LLM has taken to date, along with observations
-            **kwargs: User inputs.
+        Args:     intermediate_steps: Steps the LLM has taken to date, along
+        with observations     **kwargs: User inputs.
 
-        Returns:
-            Action specifying what tool to use.
+        Returns:     Action specifying what tool to use.
         """
         agent_scratchpad = _format_intermediate_steps(intermediate_steps)
         selected_inputs = {
-            k: kwargs[k] for k in self.prompt.input_variables if k != "agent_scratchpad"
+            k: kwargs[k]
+            for k in self.prompt.input_variables
+            if k != "agent_scratchpad"
         }
-        full_inputs = dict(**selected_inputs, agent_scratchpad=agent_scratchpad)
+        full_inputs = dict(
+            **selected_inputs, agent_scratchpad=agent_scratchpad
+        )
         prompt = self.prompt.format_prompt(**full_inputs)
         messages = prompt.to_messages()
         if with_functions:
@@ -235,19 +243,20 @@ class OpenAIFunctionsAgent(BaseSingleActionAgent):
     ) -> Union[AgentAction, AgentFinish]:
         """Given input, decided what to do.
 
-        Args:
-            intermediate_steps: Steps the LLM has taken to date,
-                along with observations
-            **kwargs: User inputs.
+        Args:     intermediate_steps: Steps the LLM has taken to date, along
+        with observations     **kwargs: User inputs.
 
-        Returns:
-            Action specifying what tool to use.
+        Returns:     Action specifying what tool to use.
         """
         agent_scratchpad = _format_intermediate_steps(intermediate_steps)
         selected_inputs = {
-            k: kwargs[k] for k in self.prompt.input_variables if k != "agent_scratchpad"
+            k: kwargs[k]
+            for k in self.prompt.input_variables
+            if k != "agent_scratchpad"
         }
-        full_inputs = dict(**selected_inputs, agent_scratchpad=agent_scratchpad)
+        full_inputs = dict(
+            **selected_inputs, agent_scratchpad=agent_scratchpad
+        )
         prompt = self.prompt.format_prompt(**full_inputs)
         messages = prompt.to_messages()
         predicted_message = await self.llm.apredict_messages(
@@ -262,11 +271,17 @@ class OpenAIFunctionsAgent(BaseSingleActionAgent):
         intermediate_steps: List[Tuple[AgentAction, str]],
         **kwargs: Any,
     ) -> AgentFinish:
-        """Return response when agent has been stopped due to max iterations."""
+        """Return response when agent has been stopped due to max
+        iterations."""
         if early_stopping_method == "force":
             # `force` just returns a constant string
             return AgentFinish(
-                {"output": "Agent stopped due to iteration limit or time limit."}, ""
+                {
+                    "output": (
+                        "Agent stopped due to iteration limit or time limit."
+                    )
+                },
+                "",
             )
         elif early_stopping_method == "generate":
             # Generate does one final forward pass
@@ -277,12 +292,13 @@ class OpenAIFunctionsAgent(BaseSingleActionAgent):
                 return agent_decision
             else:
                 raise ValueError(
-                    f"got AgentAction with no functions provided: {agent_decision}"
+                    "got AgentAction with "
+                    f"no functions provided: {agent_decision}"
                 )
         else:
             raise ValueError(
-                "early_stopping_method should be one of `force` or `generate`, "
-                f"got {early_stopping_method}"
+                "early_stopping_method should be one of "
+                f"`force` or `generate`, got {early_stopping_method}"
             )
 
     @classmethod
@@ -291,18 +307,18 @@ class OpenAIFunctionsAgent(BaseSingleActionAgent):
         system_message: Optional[SystemMessage] = SystemMessage(
             content="You are a helpful AI assistant."
         ),
-        extra_prompt_messages: Optional[List[BaseMessagePromptTemplate]] = None,
+        extra_prompt_messages: Optional[
+            List[BaseMessagePromptTemplate]
+        ] = None,
     ) -> BasePromptTemplate:
         """Create prompt for this agent.
 
-        Args:
-            system_message: Message to use as the system message that will be the
-                first in the prompt.
-            extra_prompt_messages: Prompt messages that will be placed between the
-                system message and the new human input.
+        Args:     system_message: Message to use as the system message that
+        will be the         first in the prompt.     extra_prompt_messages:
+        Prompt messages that will be placed between the         system message
+        and the new human input.
 
-        Returns:
-            A prompt template to pass into this agent.
+        Returns:     A prompt template to pass into this agent.
         """
         _prompts = extra_prompt_messages or []
         messages: List[Union[BaseMessagePromptTemplate, BaseMessage]]
@@ -326,7 +342,9 @@ class OpenAIFunctionsAgent(BaseSingleActionAgent):
         llm: BaseLanguageModel,
         tools: Sequence[BaseTool],
         callback_manager: Optional[BaseCallbackManager] = None,
-        extra_prompt_messages: Optional[List[BaseMessagePromptTemplate]] = None,
+        extra_prompt_messages: Optional[
+            List[BaseMessagePromptTemplate]
+        ] = None,
         system_message: Optional[SystemMessage] = SystemMessage(
             content="You are a helpful AI assistant."
         ),

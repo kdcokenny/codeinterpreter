@@ -1,9 +1,6 @@
-"""
-The exciting part about this example is
-that the code interpreter has internet access
-so it can download the bitcoin chart from yahoo finance
-and plot it for you
-"""
+"""The exciting part about this example is that the code interpreter has
+internet access so it can download the bitcoin chart from yahoo finance and
+plot it for you."""
 import csv
 import io
 from typing import Any
@@ -32,7 +29,9 @@ class ExampleKnowledgeBaseTool(BaseTool):
 
 
 async def main():
-    async with CodeInterpreterSession(tools=[ExampleKnowledgeBaseTool()]) as session:
+    async with CodeInterpreterSession(
+        tools=[ExampleKnowledgeBaseTool()]
+    ) as session:
         response = await session.generate_response(
             "Plot chart of company employee salaries"
         )

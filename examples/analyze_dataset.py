@@ -5,7 +5,9 @@ async def main():
     # context manager for start/stop of the session
     async with CodeInterpreterSession() as session:
         # define the user request
-        user_request = "Analyze this dataset and plot something interesting about it."
+        user_request = (
+            "Analyze this dataset and plot something interesting about it."
+        )
         files = [
             File.from_path("examples/assets/iris.csv"),
         ]

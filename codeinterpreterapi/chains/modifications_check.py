@@ -23,7 +23,11 @@ def get_file_modifications(
         result = json.loads(result)
     except json.JSONDecodeError:
         result = ""
-    if not result or not isinstance(result, dict) or "modifications" not in result:
+    if (
+        not result
+        or not isinstance(result, dict)
+        or "modifications" not in result
+    ):
         return get_file_modifications(code, llm, retry=retry - 1)
     return result["modifications"]
 
@@ -44,7 +48,11 @@ async def aget_file_modifications(
         result = json.loads(result)
     except json.JSONDecodeError:
         result = ""
-    if not result or not isinstance(result, dict) or "modifications" not in result:
+    if (
+        not result
+        or not isinstance(result, dict)
+        or "modifications" not in result
+    ):
         return await aget_file_modifications(code, llm, retry=retry - 1)
     return result["modifications"]
 

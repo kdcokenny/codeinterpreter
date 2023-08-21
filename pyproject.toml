@@ -33,7 +33,34 @@ mypy = "^1.4"
 black = "^23"
 flake8 = "^6"
 pre-commit = "^3.3"
+ruff = "^0.0.285"
+docformatter = "^1.7.5"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+known_third_party = ["ruff", "flake8"]
+line_length = 79
+
+[tool.black]
+line-length = 79
+target-version = ['py38']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 79

@@ -27,10 +27,14 @@ class CodeAgentOutputParser(AgentOutputParser):
         regex = r"Action: (.*?)[\n]*Action Input: (.*)"
         match = re.search(regex, text)
         if not match:
-            raise OutputParserException(f"Could not parse LLM output: `{text}`")
+            raise OutputParserException(
+                f"Could not parse LLM output: `{text}`"
+            )
         action = match.group(1)
         action_input = match.group(2)
-        return AgentAction(action.strip(), action_input.strip(" ").strip('"'), text)
+        return AgentAction(
+            action.strip(), action_input.strip(" ").strip('"'), text
+        )
 
     @property
     def _type(self) -> str:
@@ -39,7 +43,9 @@ class CodeAgentOutputParser(AgentOutputParser):
 
 class CodeChatAgentOutputParser(AgentOutputParser):
     def get_format_instructions(self) -> str:
-        from langchain.agents.conversational_chat.prompt import FORMAT_INSTRUCTIONS
+        from langchain.agents.conversational_chat.prompt import (
+            FORMAT_INSTRUCTIONS,
+        )
 
         return FORMAT_INSTRUCTIONS
 
@@ -64,7 +70,9 @@ class CodeChatAgentOutputParser(AgentOutputParser):
                 if match:
                     code = match.group(1).replace("\\n", "; ")
                     return AgentAction("python", code, text)
-            raise OutputParserException(f"Could not parse LLM output: `{text}`")
+            raise OutputParserException(
+                f"Could not parse LLM output: `{text}`"
+            )
 
     @property
     def _type(self) -> str:
