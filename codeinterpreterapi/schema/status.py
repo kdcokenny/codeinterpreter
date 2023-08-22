@@ -1,4 +1,4 @@
-from codeboxapi.schema import CodeBoxStatus  # type: ignore
+from openbox.schema import CodeBoxStatus  # type: ignore
 
 
 class SessionStatus(CodeBoxStatus):

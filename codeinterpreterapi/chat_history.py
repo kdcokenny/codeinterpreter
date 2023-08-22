@@ -2,7 +2,7 @@ import asyncio
 import json
 from typing import List
 
-from codeboxapi import CodeBox  # type: ignore
+from openbox import JupyterBox  # type: ignore
 from langchain.schema import BaseChatMessageHistory
 from langchain.schema.messages import (
     BaseMessage,
@@ -15,7 +15,7 @@ from langchain.schema.messages import (
 class CodeBoxChatMessageHistory(BaseChatMessageHistory):
     """Chat message history that stores history inside the codebox."""
 
-    def __init__(self, codebox: CodeBox):
+    def __init__(self, codebox: JupyterBox):
         self.codebox = codebox
 
         if "history.json" not in [f.name for f in self.codebox.list_files()]:
