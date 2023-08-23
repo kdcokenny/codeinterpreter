@@ -96,7 +96,7 @@ class CodeInterpreterSession:
         additional_tools = []
 
         if additional_tools_func:
-            additional_tools = additional_tools_func()
+            additional_tools = additional_tools_func(self)
             if not isinstance(additional_tools, list):
                 raise TypeError(
                     "Expected additional_tools_func to return a list of tools."
