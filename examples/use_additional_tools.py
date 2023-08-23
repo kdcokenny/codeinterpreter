@@ -5,9 +5,8 @@ import csv
 import io
 from typing import Any
 
-from langchain.tools import BaseTool
-
 from codeinterpreterapi import CodeInterpreterSession
+from langchain.tools import BaseTool
 
 
 class ExampleKnowledgeBaseTool(BaseTool):

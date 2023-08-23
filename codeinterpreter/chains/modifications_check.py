@@ -1,10 +1,9 @@
 import json
 from typing import List, Optional
 
+from codeinterpreterapi.prompts import determine_modifications_prompt
 from langchain.base_language import BaseLanguageModel
 from langchain.chat_models.anthropic import ChatAnthropic
-
-from codeinterpreterapi.prompts import determine_modifications_prompt
 
 
 def get_file_modifications(

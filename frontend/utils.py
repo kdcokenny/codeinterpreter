@@ -4,7 +4,6 @@ import tempfile
 from typing import Optional
 
 import streamlit as st  # type: ignore
-
 from codeinterpreterapi import CodeInterpreterSession
 
 

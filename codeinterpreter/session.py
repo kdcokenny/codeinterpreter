@@ -3,29 +3,8 @@ import re
 import traceback
 from io import BytesIO
 from os import getenv
-from typing import Optional
+from typing import Callable, Optional
 from uuid import UUID, uuid4
-
-from langchain.agents import (
-    AgentExecutor,
-    BaseSingleActionAgent,
-    ConversationalAgent,
-    ConversationalChatAgent,
-)
-from langchain.chat_models import AzureChatOpenAI, ChatAnthropic, ChatOpenAI
-from langchain.chat_models.base import BaseChatModel
-from langchain.memory import ConversationBufferMemory
-from langchain.memory.chat_message_histories import (
-    ChatMessageHistory,
-    PostgresChatMessageHistory,
-    RedisChatMessageHistory,
-)
-from langchain.prompts.chat import MessagesPlaceholder
-from langchain.schema import BaseChatMessageHistory, SystemMessage
-from langchain.schema.language_model import BaseLanguageModel
-from langchain.tools import BaseTool, StructuredTool
-from openbox import JupyterBox  # type: ignore
-from openbox.schema import CodeBoxOutput  # type: ignore
 
 from codeinterpreterapi.agents import OpenAIFunctionsAgent
 from codeinterpreterapi.chains import (
@@ -48,6 +27,26 @@ from codeinterpreterapi.schema import (
     SessionStatus,
     UserRequest,
 )
+from langchain.agents import (
+    AgentExecutor,
+    BaseSingleActionAgent,
+    ConversationalAgent,
+    ConversationalChatAgent,
+)
+from langchain.chat_models import AzureChatOpenAI, ChatAnthropic, ChatOpenAI
+from langchain.chat_models.base import BaseChatModel
+from langchain.memory import ConversationBufferMemory
+from langchain.memory.chat_message_histories import (
+    ChatMessageHistory,
+    PostgresChatMessageHistory,
+    RedisChatMessageHistory,
+)
+from langchain.prompts.chat import MessagesPlaceholder
+from langchain.schema import BaseChatMessageHistory, SystemMessage
+from langchain.schema.language_model import BaseLanguageModel
+from langchain.tools import BaseTool, StructuredTool
+from openbox import JupyterBox  # type: ignore
+from openbox.schema import CodeBoxOutput  # type: ignore
 
 
 class CodeInterpreterSession:
@@ -56,7 +55,7 @@ class CodeInterpreterSession:
         llm: Optional[BaseLanguageModel] = None,
         system_message: SystemMessage = code_interpreter_system_message,
         max_iterations: int = 9,
-        additional_tools: list[BaseTool] = [],
+        additional_tools: Optional[Callable] = None,
         **kwargs,
     ) -> None:
         self.codebox = JupyterBox()
@@ -91,7 +90,18 @@ class CodeInterpreterSession:
         self.agent_executor = self._agent_executor()
         return status
 
-    def _tools(self, additional_tools: list[BaseTool]) -> list[BaseTool]:
+    def _tools(
+        self, additional_tools_func: Optional[Callable]
+    ) -> list[BaseTool]:
+        additional_tools = []
+
+        if additional_tools_func:
+            additional_tools = additional_tools_func()
+            if not isinstance(additional_tools, list):
+                raise TypeError(
+                    "Expected additional_tools_func to return a list of tools."
+                )
+
         return additional_tools + [
             StructuredTool(
                 name="python",
