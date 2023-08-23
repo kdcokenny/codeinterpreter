@@ -1,4 +1,4 @@
-from codeinterpreterapi.prompts import remove_dl_link_prompt
+from codeinterpreter.prompts import remove_dl_link_prompt
 from langchain.base_language import BaseLanguageModel
 from langchain.chat_models.openai import ChatOpenAI
 from langchain.schema import AIMessage, OutputParserException

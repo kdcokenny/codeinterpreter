@@ -6,21 +6,21 @@ from os import getenv
 from typing import Callable, Optional
 from uuid import UUID, uuid4
 
-from codeinterpreterapi.agents import OpenAIFunctionsAgent
-from codeinterpreterapi.chains import (
+from codeinterpreter.agents import OpenAIFunctionsAgent
+from codeinterpreter.chains import (
     aget_file_modifications,
     aremove_download_link,
     get_file_modifications,
     remove_download_link,
 )
-from codeinterpreterapi.chat_history import CodeBoxChatMessageHistory
-from codeinterpreterapi.config import settings
-from codeinterpreterapi.parser import (
+from codeinterpreter.chat_history import CodeBoxChatMessageHistory
+from codeinterpreter.config import settings
+from codeinterpreter.parser import (
     CodeAgentOutputParser,
     CodeChatAgentOutputParser,
 )
-from codeinterpreterapi.prompts import code_interpreter_system_message
-from codeinterpreterapi.schema import (
+from codeinterpreter.prompts import code_interpreter_system_message
+from codeinterpreter.schema import (
     CodeInput,
     CodeInterpreterResponse,
     File,

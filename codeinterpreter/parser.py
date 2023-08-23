@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import Union
 
-from codeinterpreterapi.chains import extract_python_code
+from codeinterpreter.chains import extract_python_code
 from langchain.agents import AgentOutputParser
 from langchain.chat_models.base import BaseChatModel
 from langchain.output_parsers.json import parse_json_markdown

@@ -49,7 +49,7 @@ class File(BaseModel):
         except ImportError:
             print(
                 "Please install it with "
-                "`pip install 'codeinterpreterapi[image_support]'`"
+                "`pip install 'codeinterpreter[image_support]'`"
                 " to display images."
             )
             exit(1)
