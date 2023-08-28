@@ -3887,4 +3887,4 @@ localbox = ["jupyter-kernel-gateway"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.9.7 || >3.9.7,<4.0"
-content-hash = "627d0e080d2ffcf0fefabc322151ed83bc3ca3dc2d32d4d491360f49bf8288f0"
+content-hash = "013d48c36cf0edb9307ac94e618a496a688b995dc85e035c844725b27e657aa5"
