@@ -45,7 +45,7 @@ from langchain.prompts.chat import MessagesPlaceholder
 from langchain.schema import BaseChatMessageHistory, SystemMessage
 from langchain.schema.language_model import BaseLanguageModel
 from langchain.tools import BaseTool, StructuredTool
-from openbox import JupyterBox  # type: ignore
+from openbox import DockerBox  # type: ignore
 from openbox.schema import CodeBoxOutput  # type: ignore
 
 
@@ -58,7 +58,7 @@ class CodeInterpreterSession:
         additional_tools: Optional[Callable] = None,
         **kwargs,
     ) -> None:
-        self.codebox = JupyterBox()
+        self.codebox = DockerBox()
         self.verbose = kwargs.get("verbose", settings.VERBOSE)
         self.tools: list[BaseTool] = self._tools(additional_tools)
         self.llm: BaseLanguageModel = llm or self._choose_llm(**kwargs)
@@ -70,15 +70,21 @@ class CodeInterpreterSession:
         self.code_log: list[tuple[str, str]] = []
 
     @classmethod
-    def from_id(cls, session_id: UUID, **kwargs) -> "CodeInterpreterSession":
+    def from_id(
+        cls, session_id: UUID, kernel_id: UUID, **kwargs
+    ) -> "CodeInterpreterSession":
         session = cls(**kwargs)
-        session.codebox = JupyterBox.from_id(session_id)
+        session.codebox = DockerBox.from_id(session_id, kernel_id)
         session.agent_executor = session._agent_executor()
         return session
 
     @property
     def session_id(self) -> Optional[UUID]:
         return self.codebox.session_id
+
+    @property
+    def kernel_id(self) -> Optional[UUID]:
+        return self.codebox.kernel_id
 
     def start(self) -> SessionStatus:
         status = SessionStatus.from_codebox_status(self.codebox.start())
