@@ -3,11 +3,12 @@ from __future__ import annotations
 import re
 from typing import Union
 
-from codeinterpreter.chains import extract_python_code
 from langchain.agents import AgentOutputParser
 from langchain.chat_models.base import BaseChatModel
 from langchain.output_parsers.json import parse_json_markdown
 from langchain.schema import AgentAction, AgentFinish, OutputParserException
+
+from codeinterpreter.chains import extract_python_code
 
 
 class CodeAgentOutputParser(AgentOutputParser):
@@ -41,6 +42,10 @@ class CodeAgentOutputParser(AgentOutputParser):
 
 
 class CodeChatAgentOutputParser(AgentOutputParser):
+    def __init__(self, llm: BaseChatModel, **kwargs):
+        super().__init__(**kwargs)
+        self.llm = llm
+
     def get_format_instructions(self) -> str:
         from langchain.agents.conversational_chat.prompt import (
             FORMAT_INSTRUCTIONS,
@@ -51,9 +56,7 @@ class CodeChatAgentOutputParser(AgentOutputParser):
     def parse(self, text: str) -> Union[AgentAction, AgentFinish]:
         raise NotImplementedError
 
-    async def aparse(
-        self, text: str, llm: BaseChatModel
-    ) -> Union[AgentAction, AgentFinish]:
+    async def aparse(self, text: str) -> Union[AgentAction, AgentFinish]:
         try:
             response = parse_json_markdown(text)
             action, action_input = response["action"], response["action_input"]
@@ -63,8 +66,9 @@ class CodeChatAgentOutputParser(AgentOutputParser):
                 return AgentAction(action, action_input, text)
         except Exception:
             if '"action": "python"' in text:
+                print("TODO: Not implemented")
                 # extract python code from text with prompt
-                text = extract_python_code(text, llm=llm) or ""
+                text = extract_python_code(text, llm=self.llm) or ""
                 match = re.search(r"```python\n(.*?)```", text)
                 if match:
                     code = match.group(1).replace("\\n", "; ")

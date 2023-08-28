@@ -29,7 +29,7 @@ from langchain.schema.messages import (
 )
 from langchain.tools import BaseTool
 from langchain.tools.convert_to_openai import format_tool_to_openai_function
-from pydantic import root_validator
+from langchain.pydantic_v1 import root_validator
 
 
 @dataclass

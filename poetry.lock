@@ -2051,7 +2051,7 @@ typing-extensions = "^4.7.1"
 type = "git"
 url = "https://github.com/kdcokenny/openbox.git"
 reference = "HEAD"
-resolved_reference = "f39ff2bc1d91f330d631b767a32afdb3c4c7f580"
+resolved_reference = "ccd5ed4995e7d820b04fbcf1e0f4eb13fc313ead"
 
 [[package]]
 name = "overrides"

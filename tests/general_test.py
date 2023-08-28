@@ -1,6 +1,6 @@
 import asyncio
 
-from codeinterpreterapi import CodeInterpreterSession, File
+from codeinterpreter import CodeInterpreterSession, File
 
 
 def test_codebox():
@@ -14,7 +14,7 @@ def test_codebox():
 
 
 def test_localbox():
-    session = CodeInterpreterSession(local=True)
+    session = CodeInterpreterSession()
     assert run_sync(
         session
     ), "Failed to run sync CodeInterpreterSession locally"

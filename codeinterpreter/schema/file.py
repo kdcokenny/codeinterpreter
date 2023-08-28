@@ -1,6 +1,6 @@
 import asyncio
 
-from pydantic import BaseModel
+from langchain.pydantic_v1 import BaseModel
 
 
 class File(BaseModel):
@@ -49,7 +49,7 @@ class File(BaseModel):
         except ImportError:
             print(
                 "Please install it with "
-                "`pip install 'codeinterpreter[image_support]'`"
+                "`pip install 'codeinterpreterapi[image_support]'`"
                 " to display images."
             )
             exit(1)
@@ -60,7 +60,7 @@ class File(BaseModel):
         img = Image.open(img_io)
 
         # Convert image to RGB if it's not
-        if img.mode not in ("RGB", "L"):  # L is for greyscale images
+        if img.mode not in ("RGB", "L"):  # L is for grayscale images
             img = img.convert("RGB")
 
         return img
