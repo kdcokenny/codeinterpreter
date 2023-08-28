@@ -4,6 +4,7 @@ import traceback
 from io import BytesIO
 from os import getenv
 from typing import Callable, Optional
+import uuid
 from uuid import UUID, uuid4
 
 from codeinterpreter.agents import OpenAIFunctionsAgent
@@ -80,11 +81,13 @@ class CodeInterpreterSession:
 
     @property
     def session_id(self) -> Optional[UUID]:
-        return self.codebox.session_id
+        s_id = self.codebox.session_id
+        return UUID(int=s_id) if isinstance(s_id, int) else s_id
 
     @property
     def kernel_id(self) -> Optional[UUID]:
-        return self.codebox.kernel_id
+        k_id = self.codebox.kernel_id
+        return UUID(int=k_id) if isinstance(k_id, int) else k_id
 
     def start(self) -> SessionStatus:
         status = SessionStatus.from_codebox_status(self.codebox.start())
@@ -199,21 +202,38 @@ class CodeInterpreterSession:
         )
 
     def _history_backend(self) -> BaseChatMessageHistory:
-        return (
-            CodeBoxChatMessageHistory(codebox=self.codebox)
-            if settings.HISTORY_BACKEND == "codebox"
-            else RedisChatMessageHistory(
-                session_id=str(self.session_id),
+        session_id = (
+            self.session_id
+            if isinstance(self.session_id, uuid.UUID)
+            else uuid.UUID(str(self.session_id))
+        )
+
+        if hasattr(self, "kernel_id") and self.kernel_id:
+            kernel_id = (
+                self.kernel_id
+                if isinstance(self.kernel_id, uuid.UUID)
+                else uuid.UUID(str(self.kernel_id))
+            )
+            merged_int = session_id.int ^ kernel_id.int
+            session_id = uuid.UUID(int=merged_int)
+
+        session_id_str = str(session_id)
+
+        # Initialize the appropriate history backend
+        if settings.HISTORY_BACKEND == "codebox":
+            return CodeBoxChatMessageHistory(codebox=self.codebox)
+        elif settings.HISTORY_BACKEND == "redis":
+            return RedisChatMessageHistory(
+                session_id=session_id_str,
                 url=settings.REDIS_URL,
             )
-            if settings.HISTORY_BACKEND == "redis"
-            else PostgresChatMessageHistory(
-                session_id=str(self.session_id),
+        elif settings.HISTORY_BACKEND == "postgres":
+            return PostgresChatMessageHistory(
+                session_id=session_id_str,
                 connection_string=settings.POSTGRES_URL,
             )
-            if settings.HISTORY_BACKEND == "postgres"
-            else ChatMessageHistory()
-        )
+        else:
+            return ChatMessageHistory()
 
     def _agent_executor(self) -> AgentExecutor:
         return AgentExecutor.from_agent_and_tools(

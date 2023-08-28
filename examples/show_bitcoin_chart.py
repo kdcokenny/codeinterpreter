@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from codeinterpreterapi import CodeInterpreterSession
+from codeinterpreter import CodeInterpreterSession
 
 
 def main():
-    with CodeInterpreterSession(local=True) as session:
+    with CodeInterpreterSession() as session:
         currentdate = datetime.now().strftime("%Y-%m-%d")
 
         response = session.generate_response_sync(
