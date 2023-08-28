@@ -3,7 +3,7 @@ import os
 os.environ["HISTORY_BACKEND"] = "redis"
 os.environ["REDIS_HOST"] = "redis://localhost:6379"
 
-from codeinterpreterapi import CodeInterpreterSession  # noqa: E402
+from codeinterpreter import CodeInterpreterSession  # noqa: E402
 
 
 def main():
