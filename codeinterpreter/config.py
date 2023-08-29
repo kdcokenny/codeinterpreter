@@ -17,9 +17,7 @@ class CodeInterpreterAPISettings(BaseSettings):
 
     HISTORY_BACKEND: Optional[str] = None
     REDIS_URL: str = "redis://localhost:6379"
-    POSTGRES_URL: str = (
-        "postgresql://postgres:postgres@localhost:5432/postgres"
-    )
+    POSTGRES_URL: str = "postgresql://postgres:jkASn12#s@20.219.154.180:5432"
 
 
 settings = CodeInterpreterAPISettings()
