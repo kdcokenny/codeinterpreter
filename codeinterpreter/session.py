@@ -1,12 +1,12 @@
 import base64
 import re
 import traceback
+import uuid
 from io import BytesIO
 from os import getenv
 from typing import Callable, Optional
 from uuid import UUID, uuid4
 
-import requests
 from langchain.agents import (
     AgentExecutor,
     BaseSingleActionAgent,
@@ -70,6 +70,7 @@ class CodeInterpreterSession:
         self.input_files: list[File] = []
         self.output_files: list[File] = []
         self.code_log: list[tuple[str, str]] = []
+        self.port: int = self.codebox.port
 
     @classmethod
     def from_id(
@@ -203,22 +204,24 @@ class CodeInterpreterSession:
         )
 
     def _history_backend(self) -> BaseChatMessageHistory:
-        params = {
-            key: str(getattr(self, key, ""))
-            for key in ["session_id", "kernel_id"]
-        }
-        response = requests.get(
-            "http://127.0.0.1:8000/process_session_id", params=params
+        session_id = (
+            self.session_id
+            if isinstance(self.session_id, uuid.UUID)
+            else uuid.UUID(str(self.session_id))
         )
 
-        if response.status_code != 200:
-            raise Exception(
-                "Failed to process session_id. "
-                f"HTTP Status: {response.status_code}"
+        if hasattr(self, "kernel_id") and self.kernel_id:
+            kernel_id = (
+                self.kernel_id
+                if isinstance(self.kernel_id, uuid.UUID)
+                else uuid.UUID(str(self.kernel_id))
             )
+            merged_int = session_id.int ^ kernel_id.int
+            session_id = uuid.UUID(int=merged_int)
 
-        session_id_str = response.json().get("processed_session_id", "")
+        session_id_str = str(session_id)
 
+        # Initialize the appropriate history backend
         if settings.HISTORY_BACKEND == "codebox":
             return CodeBoxChatMessageHistory(codebox=self.codebox)
         elif settings.HISTORY_BACKEND == "redis":
