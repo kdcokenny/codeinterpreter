@@ -4,8 +4,29 @@ import traceback
 from io import BytesIO
 from os import getenv
 from typing import Callable, Optional
-import uuid
 from uuid import UUID, uuid4
+
+import requests
+from langchain.agents import (
+    AgentExecutor,
+    BaseSingleActionAgent,
+    ConversationalAgent,
+    ConversationalChatAgent,
+)
+from langchain.chat_models import AzureChatOpenAI, ChatAnthropic, ChatOpenAI
+from langchain.chat_models.base import BaseChatModel
+from langchain.memory import ConversationBufferMemory
+from langchain.memory.chat_message_histories import (
+    ChatMessageHistory,
+    PostgresChatMessageHistory,
+    RedisChatMessageHistory,
+)
+from langchain.prompts.chat import MessagesPlaceholder
+from langchain.schema import BaseChatMessageHistory, SystemMessage
+from langchain.schema.language_model import BaseLanguageModel
+from langchain.tools import BaseTool, StructuredTool
+from openbox import DockerBox  # type: ignore
+from openbox.schema import CodeBoxOutput  # type: ignore
 
 from codeinterpreter.agents import OpenAIFunctionsAgent
 from codeinterpreter.chains import (
@@ -28,26 +49,6 @@ from codeinterpreter.schema import (
     SessionStatus,
     UserRequest,
 )
-from langchain.agents import (
-    AgentExecutor,
-    BaseSingleActionAgent,
-    ConversationalAgent,
-    ConversationalChatAgent,
-)
-from langchain.chat_models import AzureChatOpenAI, ChatAnthropic, ChatOpenAI
-from langchain.chat_models.base import BaseChatModel
-from langchain.memory import ConversationBufferMemory
-from langchain.memory.chat_message_histories import (
-    ChatMessageHistory,
-    PostgresChatMessageHistory,
-    RedisChatMessageHistory,
-)
-from langchain.prompts.chat import MessagesPlaceholder
-from langchain.schema import BaseChatMessageHistory, SystemMessage
-from langchain.schema.language_model import BaseLanguageModel
-from langchain.tools import BaseTool, StructuredTool
-from openbox import DockerBox  # type: ignore
-from openbox.schema import CodeBoxOutput  # type: ignore
 
 
 class CodeInterpreterSession:
@@ -202,24 +203,22 @@ class CodeInterpreterSession:
         )
 
     def _history_backend(self) -> BaseChatMessageHistory:
-        session_id = (
-            self.session_id
-            if isinstance(self.session_id, uuid.UUID)
-            else uuid.UUID(str(self.session_id))
+        params = {
+            key: str(getattr(self, key, ""))
+            for key in ["session_id", "kernel_id"]
+        }
+        response = requests.get(
+            "http://127.0.0.1:8000/process_session_id", params=params
         )
 
-        if hasattr(self, "kernel_id") and self.kernel_id:
-            kernel_id = (
-                self.kernel_id
-                if isinstance(self.kernel_id, uuid.UUID)
-                else uuid.UUID(str(self.kernel_id))
+        if response.status_code != 200:
+            raise Exception(
+                "Failed to process session_id. "
+                f"HTTP Status: {response.status_code}"
             )
-            merged_int = session_id.int ^ kernel_id.int
-            session_id = uuid.UUID(int=merged_int)
 
-        session_id_str = str(session_id)
+        session_id_str = response.json().get("processed_session_id", "")
 
-        # Initialize the appropriate history backend
         if settings.HISTORY_BACKEND == "codebox":
             return CodeBoxChatMessageHistory(codebox=self.codebox)
         elif settings.HISTORY_BACKEND == "redis":
