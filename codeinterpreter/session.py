@@ -74,10 +74,10 @@ class CodeInterpreterSession:
 
     @classmethod
     def from_id(
-        cls, session_id: UUID, kernel_id: UUID, **kwargs
+        cls, session_id: UUID, kernel_id: UUID, port: int, **kwargs
     ) -> "CodeInterpreterSession":
         session = cls(**kwargs)
-        session.codebox = DockerBox.from_id(session_id, kernel_id)
+        session.codebox = DockerBox.from_id(session_id, kernel_id, port)
         session.agent_executor = session._agent_executor()
         return session
 
