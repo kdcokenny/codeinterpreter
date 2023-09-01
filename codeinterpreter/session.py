@@ -70,7 +70,6 @@ class CodeInterpreterSession:
         self.input_files: list[File] = []
         self.output_files: list[File] = []
         self.code_log: list[tuple[str, str]] = []
-        self.port: int = self.codebox.port
 
     @classmethod
     def from_id(
@@ -90,6 +89,10 @@ class CodeInterpreterSession:
     def kernel_id(self) -> Optional[UUID]:
         k_id = self.codebox.kernel_id
         return UUID(int=k_id) if isinstance(k_id, int) else k_id
+
+    @property
+    def port(self) -> int:
+        return self.codebox.port
 
     def start(self) -> SessionStatus:
         status = SessionStatus.from_codebox_status(self.codebox.start())

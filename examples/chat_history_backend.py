@@ -9,6 +9,7 @@ from codeinterpreter import CodeInterpreterSession  # noqa: E402
 def main():
     session_id = None
     kernel_id = None
+    port = None
 
     session = CodeInterpreterSession()
     session.start()
@@ -16,6 +17,7 @@ def main():
     print("Session ID:", session.session_id)
     session_id = session.session_id
     kernel_id = session.kernel_id
+    port = session.port
 
     response = session.generate_response_sync(
         "Plot the bitcoin chart of 2023 YTD"
@@ -25,7 +27,7 @@ def main():
     del session
 
     assert session_id is not None
-    session = CodeInterpreterSession.from_id(session_id, kernel_id)
+    session = CodeInterpreterSession.from_id(session_id, kernel_id, port)
 
     response = session.generate_response_sync("Now for the last 5 years")
     response.show()
