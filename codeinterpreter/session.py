@@ -13,6 +13,7 @@ from langchain.agents import (
     ConversationalAgent,
     ConversationalChatAgent,
 )
+from langchain.callbacks.manager import Callbacks
 from langchain.chat_models import AzureChatOpenAI, ChatAnthropic, ChatOpenAI
 from langchain.chat_models.base import BaseChatModel
 from langchain.memory import ConversationBufferMemory
@@ -58,11 +59,13 @@ class CodeInterpreterSession:
         system_message: SystemMessage = code_interpreter_system_message,
         max_iterations: int = 9,
         additional_tools: Optional[Callable] = None,
+        callbacks: Callbacks = None,
         **kwargs,
     ) -> None:
         self.codebox = DockerBox()
         self.verbose = kwargs.get("verbose", settings.VERBOSE)
         self.tools: list[BaseTool] = self._tools(additional_tools)
+        self.callbacks = callbacks
         self.llm: BaseLanguageModel = llm or self._choose_llm(**kwargs)
         self.max_iterations = max_iterations
         self.system_message = system_message
@@ -251,6 +254,7 @@ class CodeInterpreterSession:
                 return_messages=True,
                 chat_memory=self._history_backend(),
             ),
+            callbacks=self.callbacks,
         )
 
     def show_code(self, code: str) -> None:
